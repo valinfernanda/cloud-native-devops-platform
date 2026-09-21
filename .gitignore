@@ -1,7 +1,19 @@
-__pycache__/
-*.pyc
+# Python
 .venv/
+__pycache__/
+*.py[cod]
+
+# Environment / secrets
 .env
 .env.*
-!.env.example
-.DS_Store
+
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/*.tfvars
+terraform/*.tfvars.json
+
+# Terraform crash logs
+crash.log
+crash.*.log
