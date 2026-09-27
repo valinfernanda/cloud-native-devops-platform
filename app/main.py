@@ -1,7 +1,11 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI(title="Task Management API")
+
+Instrumentator().instrument(app).expose(app)
+
 
 
 class Task(BaseModel):

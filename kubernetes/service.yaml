@@ -3,15 +3,18 @@ kind: Service
 
 metadata:
   name: task-management-api
+  labels:
+    app: task-management-api
+
 
 spec:
   selector:
     app: task-management-api
 
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: 80
       targetPort: 8000
 
   type: LoadBalancer
-  
