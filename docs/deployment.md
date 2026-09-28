@@ -48,14 +48,14 @@ The application is deployed to Azure Kubernetes Service (AKS).
 
 The Kubernetes configuration consists of:
 
-k8s/deployment.yaml — application Deployment
-k8s/service.yaml — LoadBalancer Service
-k8s/servicemonitor.yaml — Prometheus ServiceMonitor
+kubernetes/deployment.yaml — application Deployment
+kubernetes/service.yaml — LoadBalancer Service
+kubernetes/servicemonitor.yaml — Prometheus ServiceMonitor
 Application Deployment
 
 Apply the Kubernetes Deployment:
 
-kubectl apply -f k8s/deployment.yaml
+kubectl apply -f kubernetes/deployment.yaml
 
 The application runs with two replicas to provide basic availability within the cluster.
 
@@ -66,7 +66,7 @@ Kubernetes Service
 
 Apply the Service:
 
-kubectl apply -f k8s/service.yaml
+kubectl apply -f kubernetes/service.yaml
 
 The Service exposes the application through an Azure LoadBalancer.
 
@@ -134,7 +134,7 @@ The Kubernetes ServiceMonitor discovers the application Service and configures P
 
 Apply the ServiceMonitor:
 
-kubectl apply -f k8s/servicemonitor.yaml
+kubectl apply -f kubernetes/servicemonitor.yaml
 
 Verify the ServiceMonitor:
 
