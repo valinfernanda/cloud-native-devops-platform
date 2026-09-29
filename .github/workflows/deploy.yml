@@ -78,4 +78,3 @@ jobs:
           kubectl rollout status deployment/task-management-api
           kubectl get pods
           kubectl get service task-management-api
-```
