@@ -1,7 +1,3 @@
-Betul. Kamu benar — **3 pod itu memang test yang dilakukan saat masih di Central US**, bukan kondisi sekarang. Jadi untuk README final aku akan pisahkan dengan jelas antara **historical testing** dan **current state di East US**, supaya tidak misleading saat kamu jelaskan ke interviewer.
-
-Aku juga akan memasukkan seluruh troubleshooting yang kita lakukan: quota Central US, migrasi East US, Terraform, AKS, Kubernetes, Docker multi-platform, GHCR, OIDC, RBAC, Trivy, Prometheus/ServiceMonitor, dan CI/CD.
-
 # Cloud-Native DevOps Platform
 
 A hands-on DevOps portfolio project demonstrating how to build, containerize, provision, deploy, secure, monitor, and continuously deliver a containerized application on Microsoft Azure using Terraform, Kubernetes, GitHub Actions, GitHub Container Registry, Trivy, Prometheus, and Grafana.
