@@ -71,15 +71,15 @@ resource "azurerm_user_assigned_identity" "github_actions" {
 }
 
 resource "azurerm_federated_identity_credential" "github_actions" {
-  name      = "github-actions-fic"
-  parent_id = azurerm_user_assigned_identity.github_actions.id
+  name                      = "github-actions-fic"
+  user_assigned_identity_id = azurerm_user_assigned_identity.github_actions.id
 
   audience = [
     "api://AzureADTokenExchange"
   ]
 
   issuer  = "https://token.actions.githubusercontent.com"
-  subject = "repo:valinfernanda/cloud-native-devops-platform:ref:refs/heads/main"
+  subject = "repo:valinfernanda@37076434/cloud-native-devops-platform@1370063014:ref:refs/heads/main"
 }
 
 
@@ -109,10 +109,9 @@ resource "azurerm_kubernetes_cluster" "main" {
     vnet_subnet_id = azurerm_subnet.aks.id
     //temporary_name_for_rotation = "tmpsystem"
 
-    //upgrade_settings {
-    //  max_surge       = "10%"
-    // max_unavailable = "1"
-    //}
+    upgrade_settings {
+      max_surge = "10%"
+    }
   }
 
   identity {
