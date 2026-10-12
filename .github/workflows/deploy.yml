@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   id-token: write
@@ -32,29 +33,60 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push Docker image
+      - name: Build AMD64 image
         uses: docker/build-push-action@v6
         with:
-          context: ./app
+          context: .
+          file: ./app/Dockerfile
+          platforms: linux/amd64
           push: true
-          platforms: linux/amd64,linux/arm64
-          tags: |
-            ${{ env.IMAGE_NAME }}:${{ github.sha }}
-            ${{ env.IMAGE_NAME }}:latest
+          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}-amd64
 
-      - name: Scan Docker image with Trivy
+      - name: Build ARM64 image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./app/Dockerfile
+          platforms: linux/arm64
+          push: true
+          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}-arm64
+
+      - name: Scan AMD64 image with Trivy
         uses: aquasecurity/trivy-action@v0.35.0
         with:
-          image-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          image-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}-amd64
           format: table
           exit-code: 1
           ignore-unfixed: true
           severity: CRITICAL,HIGH
 
+      - name: Scan ARM64 image with Trivy
+        uses: aquasecurity/trivy-action@v0.35.0
+        with:
+          image-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}-arm64
+          format: table
+          exit-code: 1
+          ignore-unfixed: true
+          severity: CRITICAL,HIGH
+
+
+      - name: Create multi-platform manifest
+        run: |
+          docker buildx imagetools create \
+            --tag "${IMAGE_NAME}:${GITHUB_SHA}" \
+            --tag "${IMAGE_NAME}:latest" \
+            "${IMAGE_NAME}:${GITHUB_SHA}-amd64" \
+            "${IMAGE_NAME}:${GITHUB_SHA}-arm64"
+
+
       - name: Azure Login
+        #if: github.event_name == 'workflow_dispatch'
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -62,18 +94,22 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Set AKS context
+        #if: github.event_name == 'workflow_dispatch'
         uses: azure/aks-set-context@v4
         with:
           resource-group: ${{ env.RESOURCE_GROUP }}
           cluster-name: ${{ env.AKS_CLUSTER }}
 
       - name: Deploy to AKS
+        #if: github.event_name == 'workflow_dispatch'
         run: |
+          sed -i "s|image: .*task-management-api:.*|image: ${{ env.IMAGE_NAME }}:${{ github.sha }}|" kubernetes/deployment.yaml
           kubectl apply -f kubernetes/deployment.yaml
           kubectl apply -f kubernetes/service.yaml
           kubectl apply -f kubernetes/servicemonitor.yaml
 
       - name: Verify deployment
+        #if: github.event_name == 'workflow_dispatch'
         run: |
           kubectl rollout status deployment/task-management-api
           kubectl get pods

@@ -1,25 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
-
 metadata:
   name: task-management-api
-
 spec:
   replicas: 2
-
   selector:
     matchLabels:
       app: task-management-api
-
   template:
     metadata:
       labels:
         app: task-management-api
-
     spec:
       imagePullSecrets:
         - name: ghcr-secret
-
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
@@ -27,15 +25,17 @@ spec:
           labelSelector:
             matchLabels:
               app: task-management-api
-
       containers:
         - name: task-management-api
           image: ghcr.io/valinfernanda/task-management-api:latest
           imagePullPolicy: Always
-
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           ports:
             - containerPort: 8000
-
           resources:
             requests:
               cpu: "100m"
@@ -43,14 +43,12 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
-
           readinessProbe:
             httpGet:
               path: /health
               port: 8000
             initialDelaySeconds: 5
             periodSeconds: 10
-
           livenessProbe:
             httpGet:
               path: /health
