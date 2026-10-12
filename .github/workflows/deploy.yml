@@ -66,12 +66,15 @@ jobs:
           ignore-unfixed: true
           severity: CRITICAL,HIGH
 
+      
       - name: Scan ARM64 image with Trivy
         uses: aquasecurity/trivy-action@v0.35.0
+        env:
+          TRIVY_PLATFORM: linux/arm64
         with:
           image-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}-arm64
           format: table
-          exit-code: 1
+          exit-code: '1'
           ignore-unfixed: true
           severity: CRITICAL,HIGH
 
